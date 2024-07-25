@@ -6,7 +6,6 @@ In this challenge, I Get a dataset filled with recipe names, reviews, and other 
 #
 My goal is simple: Build models that can guess the ratings for each recipe using this information.
 #
-In this challenge you goal is to build models that can guess the ratings for each recipe using given information.
 
 Dataset Overview
 
