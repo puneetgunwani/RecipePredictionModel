@@ -1,13 +1,9 @@
-OVERVIEW
-#
+# OVERVIEW
 My mission is to predict how people rate recipes!
-#
 In this challenge, I Get a dataset filled with recipe names, reviews, and other important details.
-#
 My goal is simple: Build models that can guess the ratings for each recipe using this information.
-#
 
-Dataset Overview
+# Dataset Overview
 
 This dataset is my gateway to the Recipe Ratings Prediction Challenge! Each entry captures a unique culinary story with details such as recipe names, user reviews, and various key features. Your task is to explore this rich data and develop predictive models that can forecast the ratings for every recipe.
 Data Files
@@ -19,7 +15,7 @@ test.csv: The test set, containing similar feature attributes but without the ta
 
 sample_submission.csv: A sample submission file provided in the correct format for competition submissions.
 
-Columns Description
+# Columns Description
 
 RecipeNumber: Placement of the recipe on the top 100 recipes list
 
