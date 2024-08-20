@@ -1,1 +1,183 @@
+# This Python 3 environment comes with many helpful analytics libraries installed
+# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
+# For example, here's several helpful packages to load
+
+import numpy as np # linear algebra
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+
+# Input data files are available in the read-only "../input/" directory
+# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory
+
+import os
+for dirname, _, filenames in os.walk('/kaggle/input'):
+    for filename in filenames:
+        print(os.path.join(dirname, filename))
+
+# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All" 
+# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
+
+
+train_df = pd.read_csv('/kaggle/input/recipe-for-rating-predict-food-ratings-using-ml/train.csv')
+train_df.head()
+
+train_df.dtypes
+
+train_default = train_df.drop(columns=['RecipeName','UserID','CommentID','UserName'])
+train_default.head()
+
+import pandas as pd
+import matplotlib.pyplot as plt
+from wordcloud import WordCloud
+
+# Load the data
+train_df = pd.read_csv('/kaggle/input/recipe-for-rating-predict-food-ratings-using-ml/train.csv')
+
+# Word Cloud for Recipe Reviews
+reviews_text = ' '.join(train_df['Recipe_Review'].dropna())
+wordcloud = WordCloud(width=800, height=400, background_color='white').generate(reviews_text)
+
+plt.figure(figsize=(10, 6))
+plt.imshow(wordcloud, interpolation='bilinear')
+plt.title('Word Cloud for Recipe Reviews')
+plt.axis('off')
+plt.show()
+
+# Set use_inf_as_na option to True for Pandas (deprecated)
+pd.set_option('mode.use_inf_as_na', True)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# EDA (Exploratory Data Analysis)
+print("Summary Statistics:")
+print(train_df.describe())
+# This code plots a histogram showing the distribution of ratings in the training data.
+# Distribution of Rating
+plt.figure(figsize=(8, 6))
+
+# Convert infinity values to NaN before plotting
+with pd.option_context('mode.use_inf_as_na', True):
+    sns.histplot(train_df['Rating'], bins=20, kde=True)
+
+plt.title('Distribution of Rating')
+plt.xlabel('Rating')
+plt.ylabel('Frequency')
+plt.show()
+
+# Load the training data
+train_df = pd.read_csv('/kaggle/input/recipe-for-rating-predict-food-ratings-using-ml/train.csv')
+
+# Remove non-numeric columns
+numeric_columns = train_df.select_dtypes(include=['number']).columns
+train_numeric = train_df[numeric_columns]
+
+# Correlation Matrix
+plt.figure(figsize=(10, 8))
+sns.heatmap(train_numeric.corr(), annot=True, cmap='coolwarm')
+plt.title('Correlation Matrix')
+plt.show()
+
+# Exclude non-numeric columns
+numeric_columns = train_df.select_dtypes(include=['number']).columns
+numeric_df = train_df[numeric_columns]
+# Bar plot for comparing mean or median ratings across categories
+plt.figure(figsize=(10, 6))
+sns.barplot(x='UserReputation', y='Rating', data=train_df)
+plt.title('Mean Rating by UserReputation')
+plt.xlabel('UserReputation')
+plt.ylabel('Mean Rating')
+plt.show()
+
+# Scatter plot for continuous numeric variables
+plt.figure(figsize=(8, 6))
+sns.scatterplot(x='ThumbsUpCount', y='Rating', data=train_df)
+plt.title('Relationship between Rating and ThumbsUpCount')
+plt.xlabel('ThumbsUpCount')
+plt.ylabel('Rating')
+plt.show()
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split, GridSearchCV
+
+X_train = train_default['Recipe_Review']
+
+Y_train = train_default['Rating']
+x_train,x_test,y_train,y_test = train_test_split(X_train,Y_train,test_size=0.2, random_state=42)
+
+test_df = pd.read_csv('/kaggle/input/recipe-for-rating-predict-food-ratings-using-ml/test.csv')
+test_df.dtypes
+
+# correctly identifying the feature types.
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+# This line removes rows with missing values from the train_df DataFrame.
+train_df.dropna(inplace=True)
+
+# Initialize the TF-IDF Vectorizer
+tfidf_vectorizer = TfidfVectorizer()
+
+# These lines initialize and fit a TF-IDF vectorizer to convert text data into numerical format.
+X_train_tfidf = tfidf_vectorizer.fit_transform(train_df['Recipe_Review'])
+Y_train = train_df['Rating']
+
+# Split the data into training and testing sets
+X_train, X_test, Y_train, Y_test = train_test_split(X_train_tfidf, Y_train, test_size=0.2, random_state=42)
+# Initialize and train the Logistic Regression model
+logistic_model = LogisticRegression()
+logistic_model.fit(X_train, Y_train)
+
+#These lines transform the test data using the TF-IDF vectorizer and make predictions using the trained logistic regression model.
+X_test_tfidf = tfidf_vectorizer.transform(test_df['Recipe_Review'])
+# Predict using the trained Logistic Regression model
+prediction = logistic_model.predict(X_test_tfidf)
+
+# Display the prediction
+print(prediction)
+
+logistic_model.score(X_test,Y_test)
+
+id =[]
+for i in range(1,4547):
+    id.append(i)
+print(id)
+
+final_prediction = pd.DataFrame({'ID':id, 'Rating': prediction})
+final_prediction.to_csv('submission.csv', index=False)
+
+ from sklearn.ensemble import RandomForestClassifier
+
+# Initialize and train the Random Forest Classifier model
+random_forest_model = RandomForestClassifier()
+random_forest_model.fit(X_train, Y_train)
+
+# Predict using the trained Random Forest Classifier model
+rf_prediction = random_forest_model.predict(X_test_tfidf)
+
+# Calculate the accuracy score
+rf_accuracy = random_forest_model.score(X_test, Y_test)
+print("Random Forest Classifier Accuracy:", rf_accuracy)
+
+from sklearn.linear_model import SGDClassifier
+
+# Initialize and train the SGD Classifier model
+sgd_model = SGDClassifier()
+sgd_model.fit(X_train, Y_train)
+
+# Predict using the trained SGD Classifier model
+sgd_prediction = sgd_model.predict(X_test_tfidf)
+
+# Calculate the accuracy score
+sgd_accuracy = sgd_model.score(X_test, Y_test)
+print("SGD Classifier Accuracy:", sgd_accuracy)
+
+
+
+
+#Accuracy: 0.7763 Logistic Regression achieved an accuracy score of approximately 0.7763. This means that around 77.63% of the predictions made by the model were correct on the test dataset. Random Forest Classifier:
+
+Accuracy: 0.7693 The Random Forest Classifier achieved an accuracy score of approximately 0.7693. This indicates that around 76.93% of the predictions made by the model were correct on the test dataset. SGD Classifier:
+
+Accuracy: 0.7752 The SGD Classifier achieved an accuracy score of approximately 0.7752. This suggests that around 77.52% of the predictions made by the model were correct on the test dataset. Based on the accuracy scores:
+
+Logistic Regression has the highest accuracy score among the three models. However, the differences in accuracy scores between Logistic Regression and SGD Classifier are minimal. Overall, Logistic Regression seems to perform slightly better in terms of accuracy for this specific task. However, further analysis and experimentation may be needed to determine the most suitable model for deployment
 
